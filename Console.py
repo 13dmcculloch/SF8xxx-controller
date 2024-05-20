@@ -48,9 +48,13 @@ class Console:
             if self.tokens[1] == 'all':
                 for alias in self.devices.keys():
                     self.__hang_up(alias)
+                
+                self.__clean_devices()
                 return
             
             self.__hang_up(self.tokens[1])
+            self.__clean_devices()
+            
             
         elif root == 'qrd':
             if self.__token_len(2):
@@ -184,7 +188,14 @@ class Console:
         print("[CONSOLE]: Disconnecting", self.devices[alias].serial_no, "from",
               self.devices[alias].port)
         
-        del self.devices[alias]
+        self.devices[alias].dev.close()
+        self.devices[alias] = 0
+        
+        
+    def __clean_devices(self):
+        for alias in list(self.devices.keys()):
+            if self.devices[alias] == 0:
+                del self.devices[alias]               
         
     
     def __configure(self, alias):
