@@ -22,32 +22,18 @@ class SF8xxx:
     def __init__(self, port):
         self.port = port
         self.dev = serial.Serial(port, 115200, timeout=0.2)
-        print("Opened", self.dev.name)
         self.serial_no = self.get_serial_no()
         
         self.driver_mask = self.get_driver_state()
-        self.driver_off = True if self.driver_mask[3] & 0x2 else False
+        self.driver_off = self.driver_mask[3] & 0x2
         
         self.tec_mask = self.get_tec_state()
-        self.tec_off = True if self.tec_mask[3] & 0x2 else False
+        self.tec_off = self.tec_mask[3] & 0x2
     
     
     def __del__(self):
         self.dev.close()
         
-    
-    def qrd(self):
-        """
-        Quick rundown: print important device stats
-        """
-        self.driver_on()
-        print("\tCurrent:", str(self.get_driver_current()) + " mA")
-        self.tec_on()
-        print("\tTemp:", str(self.get_tec_temperature()) + " C")
-        print("\tCurrent:", str(self.get_tec_current()) + " A (Limit:",
-              str(self.get_tec_current_limit()) + "A)")
-
-    
         
     def __get_response(self, parameter):
         """
@@ -67,16 +53,20 @@ class SF8xxx:
         
     def driver_state(self):
         """
-        Prints the driver state
+        Returns the driver state: 
+            Device, Driver, Current, Enable, NTC, Interlock
+            ON/OFF, ON/OFF, INT/EXT, INT/EXT, DENY/ALLOW, DENY/ALLOW
         """
         state = self.get_driver_state()
+
+        device = state[3] & 0x1
+        driver = state[3] & 0x2
+        current = state[3] & 0x4
+        enable = state[2] & 0x1
+        ntc = state[2] & 0x4
+        interlock = state[2] & 0x8
         
-        print("Device:\t\t", "ON" if state[3] & 0x1 else "OFF")
-        print("Driver:\t\t", "ON" if state[3] & 0x2 else "OFF")
-        print("Current:\t\t", "INT" if state[3] & 0x4 else "EXT")
-        print("Enable:\t\t", "INT" if state[2] & 0x1 else "EXT")
-        print("NTC int.:\t\t", "DENY" if state[3] & 0x4 else "ALLOW")
-        print("Interlock:\t\t", "DENY" if state[3] & 0x8 else "ALLOW")
+        return device, driver, current, enable, ntc, interlock
         
     
     def driver_on(self):
@@ -85,7 +75,7 @@ class SF8xxx:
         """
         state = self.get_driver_state()
         
-        print("Driver:\t\t", "ON" if state[3] & 0x2 else "OFF")
+        return state[3] & 0x2
         
     
     def get_driver_value(self):
@@ -118,16 +108,17 @@ class SF8xxx:
     
     def tec_state(self):
         """
-        Print TEC state
+        Return TEC state:
+            TEC, temp set, enable
+            ON/OFF, INT/EXT, INT/EXT
         """
         state = self.get_tec_state()
         
-        print("TEC:\t\t", "ON" if state[3] & 0x2 else "OFF")
-        print("Temp set:\t\t", "INT" if state[3] & 0x4 else "EXT")
-        print("Enable:\t\t", "INT" if state[2] & 0x1 else "EXT")
+        tec = state[3] & 0x2
+        temp = state[3] & 0x4
+        enable = state[2] & 0x1
         
-        print("TEC temperature:", self.get_tec_temperature())
-        print("TEC set point:", self.get_tec_value())
+        return tec, temp, enable
         
     
     def tec_on(self):
@@ -136,7 +127,7 @@ class SF8xxx:
         """
         state = self.get_tec_state()
         
-        print("TEC:\t\t", "ON" if state[3] & 0x2 else "OFF")
+        return state[3] & 0x2
         
         
     def get_tec_value(self):
@@ -167,16 +158,21 @@ class SF8xxx:
 
     def lock_state(self):
         """
-        Print lock state
+        Return lock state:
+            interlock, LD overcurrent, LD overhead, NTC, TEC error, TEC heat?
+            ON/OFF, ON/OFF, ON/OFF, ON/OFF, ON/OFF, ON/OFF
         """
         state = self.get_lock_state()
         
-        print("Interlock:\t\t", "ON" if state[4] & 0x2 else "OFF")
-        print("LD OC:\t\t", "ON" if state[4] & 0x8 else "OFF")
-        print("LD OH:\t\t", "ON" if state[3] & 0x1 else "OFF")
-        print("NTC ext.:\t\t", "ON" if state[3] & 0x2 else "OFF")
-        print("TEC err.:\t\t", "ON" if state[3] & 0x4 else "OFF")
-        print("TEC SH:\t\t", "ON" if state[3] & 0x8 else "OFF")
+        interlock = state[4] & 0x2
+        ld_overcurrent = state[4] & 0x8
+        ld_overheat = state[3] & 0x1
+        ntc = state[3] & 0x2
+        tec_error = state[3] & 0x4
+        tec_selfheat = state[3] & 0x8
+        
+        return interlock, ld_overcurrent, ld_overheat, ntc, tec_error, \
+                tec_selfheat
 
 
     def get_serial_no(self):
@@ -189,8 +185,7 @@ class SF8xxx:
         
         res = Response(self.dev.read_until(expected='\r'), 'set')
         if res.state == 'error':
-            print("Error setting", parameter)
-            return
+            return 1
         
         return res
     
@@ -210,15 +205,17 @@ class SF8xxx:
         
         if type(self.__set_routine('DRIVER_STATE', 0x0008)) != None:
             self.driver_off = False
+            return 0
         else:
-            print(self.serial_no, "Failed to set driver on")
+            return str(self.serial_no) + "Failed to set driver on"
             
         
     def set_driver_off(self):
         if type(self.__set_routine('DRIVER_STATE', 0x0010)) != None:
             self.driver_off = True
+            return 0
         else:
-            print(self.serial_no, "Failed to set driver off")
+            return str(self.serial_no) + "Failed to set driver off"
             
     
     def set_driver_current_max(self, current_mA):
@@ -243,7 +240,7 @@ class SF8xxx:
         if type(self.__set_routine('TEC_STATE', 0x0008)) != None:
             self.tec_off = False
         else:
-            print(self.serial_no, "Failed to set TEC on")
+            return str(self.serial_no) + "Failed to set TEC on"
         
         
     def set_tec_off(self):
@@ -253,7 +250,7 @@ class SF8xxx:
         if type(self.__set_routine('TEC_STATE', 0x0010)) != None:
             self.tec_off = True
         else:
-            print(self.serial_no, "Failed to set TEC off")
+            return str(self.serial_no) + "Failed to set TEC off"
 
     
 class Command:
