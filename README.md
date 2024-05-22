@@ -2,8 +2,7 @@
 Basic terminal-based software to control output current and temperature on an arbitrary number of Maiman SF8xxx laser diode/SOA controllers connected over UART, using the pySerial library for this.
 
 ### To do
-- ~~Fix the bug where "`hangup all`" would crash program~~ (The fix is untested.)
-- Add functionality to get the current setpoint/actual (max) current/temperature outside of `qrd` which is quite limited and comes straight from `SF8xxx`.
+- Test program with new functions
 
 ### Synopsis
 Software for Maiman Electronics SF8xxx diode controllers.\
