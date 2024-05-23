@@ -7,7 +7,9 @@ Basic terminal-based software to control output current and temperature on an ar
 
 ### Synopsis
 Software for Maiman Electronics SF8xxx diode controllers.
+
 Commands:
+
 `dial [port] [device]` - Connect device at `[port]`, addressable by `[device]`.
 \
 `hangup [device]` - Disconnect this device.
