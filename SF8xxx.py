@@ -21,15 +21,19 @@ class SF8xxx:
     """
     def __init__(self, port):
         self.port = port
-        self.dev = serial.Serial(port, 115200, timeout=0.2)
+        
+        try:
+            self.dev = serial.Serial(port, 115200, timeout=0.2)
+        except serial.SerialException:
+            self.connected = False
+            return
+        self.connected = True
+        
         self.serial_no = self.get_serial_no()
         
-        self.driver_mask = self.get_driver_state()
-        self.driver_off = self.driver_mask[3] & 0x2
-        
-        self.tec_mask = self.get_tec_state()
-        self.tec_off = self.tec_mask[3] & 0x2
-    
+        self.driver_off = not self.driver_state()[1]
+        self.tec_off = not self.tec_state()[0]
+
     
     def __del__(self):
         self.dev.close()
@@ -153,7 +157,7 @@ class SF8xxx:
 
     
     def get_lock_state(self):
-        return self.__get_response('LOCK_STATE').data        
+        return self.__get_response('LOCK_STATE').raw()     
 
 
     def lock_state(self):
@@ -164,12 +168,12 @@ class SF8xxx:
         """
         state = self.get_lock_state()
         
-        interlock = state[4] & 0x2
-        ld_overcurrent = state[4] & 0x8
-        ld_overheat = state[3] & 0x1
-        ntc = state[3] & 0x2
-        tec_error = state[3] & 0x4
-        tec_selfheat = state[3] & 0x8
+        interlock = state[3] & 0x2
+        ld_overcurrent = state[3] & 0x8
+        ld_overheat = state[2] & 0x1
+        ntc = state[2] & 0x2
+        tec_error = state[2] & 0x4
+        tec_selfheat = state[2] & 0x8
         
         return interlock, ld_overcurrent, ld_overheat, ntc, tec_error, \
                 tec_selfheat
@@ -239,6 +243,7 @@ class SF8xxx:
     def set_tec_on(self):
         if type(self.__set_routine('TEC_STATE', 0x0008)) != None:
             self.tec_off = False
+            return 0
         else:
             return str(self.serial_no) + "Failed to set TEC on"
         
@@ -249,6 +254,7 @@ class SF8xxx:
         
         if type(self.__set_routine('TEC_STATE', 0x0010)) != None:
             self.tec_off = True
+            return 0
         else:
             return str(self.serial_no) + "Failed to set TEC off"
 

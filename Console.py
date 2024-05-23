@@ -66,7 +66,7 @@ class Console:
             if self.tokens[1] == 'all':
                 for alias, dev in self.devices.items():
                     print(alias + ':')
-                    self.__qrd(dev)
+                    self.__qrd(alias)
                 return
             
             print(self.tokens[1] + ':')
@@ -82,7 +82,7 @@ class Console:
             if self.tokens[1] == 'all':
                 for alias, dev in self.devices.items():
                     print(alias + ':')
-                    self.__qrrd(dev)
+                    self.__qrrd(alias)
                 return
             
             print(self.tokens[1] + ':')
@@ -155,6 +155,7 @@ class Console:
                 if alias == 'all':
                     for dev in self.devices.keys():
                         self.__tec_temp(dev, int(value))
+                    return
                 
                 self.__tec_temp(alias, int(value))
                 
@@ -230,7 +231,18 @@ class Console:
                     self.__print_lock_state(dev)
                 return
             
-            self.__print_lock_state(dev)
+            self.__print_lock_state(self.tokens[1])
+            
+        elif root == 'max':
+            if self.__token_len(2):
+                return
+            
+            if self.tokens[1] == 'all':
+                for dev in self.devices.keys():
+                    self.__mxma(dev)
+                return
+            
+            self.__mxma(self.tokens[1])
             
         elif root == 'list':
             self.__list_devs()
@@ -249,8 +261,13 @@ class Console:
         
         self.devices[alias] = sf8.SF8xxx(port)
         
-        print("[CONSOLE]: ", self.devices[alias].serial_no, "connected on", 
-              self.devices[alias].port)
+        if not self.devices[alias].connected:
+            print("Failed to connect to", port)
+        
+        print(self.devices[alias].serial_no, "connected on", 
+              self.devices[alias].port, end='. ')
+        print("Driver:", "OFF" if self.devices[alias].driver_off else "ON",
+              "TEC:", "OFF" if self.devices[alias].tec_off else "ON")
         
         
     def __hang_up(self, alias):
@@ -258,7 +275,7 @@ class Console:
             print("[CONSOLE]: Device", alias, "not connected")
             return
         
-        print("[CONSOLE]: Disconnecting", 
+        print("Disconnecting", 
               self.devices[alias].serial_no, "from", self.devices[alias].port)
         
         self.devices[alias].dev.close()
@@ -303,32 +320,32 @@ class Console:
     
     def __print_tec_current_actual(self, alias):
         cur_actual = self.devices[alias].get_tec_current()
-        print("TEC current measured =", cur_actual, "A")
+        print("\tTEC =", cur_actual, "A")
         
         
     def __print_tec_current_max(self, alias):
         cur_max = self.devices[alias].get_tec_current_limit()
-        print("TEC current measured =", cur_max, "A")
+        print("\tTEC Max =", cur_max, "A")
 
         
     def __print_dri_current(self, alias):
         dri_cur = self.devices[alias].get_driver_current()
-        print("Driver current =", dri_cur, "mA")
+        print("\tValue =", dri_cur, "mA")
     
     
     def __print_dri_current_max(self, alias):
         dri_max = self.devices[alias].get_driver_current_max()
-        print("Driver current max =", dri_max, "mA")
+        print("\tMax =", dri_max, "mA")
     
     
     def __print_dri_current_setpoint(self, alias):
         dri_setpoint = self.devices[alias].get_driver_value()
-        print("Driver current set =", dri_setpoint, "mA")
+        print("\tSetpoint =", dri_setpoint, "mA")
     
     
     def __print_temperature(self, alias):
         temp = self.devices[alias].get_tec_temperature()
-        print("TEC temperature =", temp, "C")
+        print("\tTemp =", temp, "C")
     
     
     def __configure(self, alias):
@@ -442,7 +459,7 @@ class Console:
     
     def __list_devs(self):
         for k, v in self.devices.items():
-            print("[CONSOLE]:", k, "on", v.port)
+            print(k, "on", v.port)
 
         
     def __token_len(self, length: int):
@@ -474,7 +491,7 @@ class Console:
     
     
     def __print_intro(self):
-        print("[CONSOLE]: SF8xxx controller.")
+        print("SF8xxx controller 1.0")
         
         
     def __print_help(self):
@@ -490,6 +507,7 @@ class Console:
         print("dri cur(max) [device] [current, mA] - Set (max) driver current of [device].")
         print("dri/tec on/stat [device] - Driver/TEC of [device] on? Or print status register contents.")
         print("lock [device] - Print [device] register contents for lock status.")
+        print("max [device] - Print [device] current maxima.")
         print("list - Print a list of connected devices with ports.")
         print("exit - Exit program.")
         print("[device] = \"all\" to perform the command for all devices (except for dial and driver current routines).")
