@@ -22,6 +22,9 @@ class Console:
             
     def __del__(self):
         for d in self.devices.values():
+            if not d.connected:
+                return
+
             print("[CONSOLE]: Disconnecting", d.serial_no, "from",
                   d.port)
             
@@ -263,6 +266,7 @@ class Console:
         
         if not self.devices[alias].connected:
             print("Failed to connect to", port)
+            return
         
         print(self.devices[alias].serial_no, "connected on", 
               self.devices[alias].port, end='. ')

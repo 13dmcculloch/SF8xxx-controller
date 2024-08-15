@@ -36,6 +36,8 @@ class SF8xxx:
 
     
     def __del__(self):
+        if not self.connected:
+            return
         self.dev.close()
         
         

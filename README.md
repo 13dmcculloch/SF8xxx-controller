@@ -50,7 +50,14 @@ Author: Douglas McCulloch, May 2024
 
 *"easy lab use" means: ignore external NTC thermistor, but interlock the driver output between analog pins 15 and 16 (any GND). This command will likely need to be run initially as the driver/TEC enable may be set to "external" on power-up.
 
-Files:
+### Usage and installation
+If on Linux or whatever you need to add yourself to the `dialout` group in
+order to access serial devices.
+
+The executable (currently `main.py`) contains the shebang necessary for
+execution on Linux or whatever but can still be run under python.
+
+### Files
 `SF8xxx.py` - library to interface with Maiman SF8xxx controller boards.
 
 `Console.py` - console object.
