@@ -128,9 +128,6 @@ class SF8xxx:
         
     
     def tec_on(self):
-        """
-        Print tec on/off state specifically
-        """
         state = self.get_tec_state()
         
         return state[3] & 0x2
@@ -244,8 +241,14 @@ class SF8xxx:
     
     def set_tec_on(self):
         if type(self.__set_routine('TEC_STATE', 0x0008)) != None:
-            self.tec_off = False
-            return 0
+            if self.tec_on():
+                self.tec_off = False
+                return 0
+
+            else:
+                self.tec_off = True 
+                return str(self.serial_no) + "Failed to set TEC on. Interlock?"
+
         else:
             return str(self.serial_no) + "Failed to set TEC on"
         

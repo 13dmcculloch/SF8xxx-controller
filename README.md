@@ -23,7 +23,7 @@ Commands:
 `configure [device]` - Set device registers for easy lab use.*
 
 
-`tec set [device] [on/off]` - Turn TEC on or off.
+`tec set [device] [on/off]` - Turn TEC on or off. (Interlock must be on.)
 \
 `tec temp [device] [temperature, C]` - Set TEC temperature.
 \
