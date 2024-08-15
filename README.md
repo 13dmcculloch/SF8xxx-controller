@@ -1,4 +1,4 @@
-# SF8xxx-controller 1.0
+# SF8xxx-controller 1.1
 Basic terminal-based software to control output current and temperature on an arbitrary number of Maiman SF8xxx laser diode/SOA controllers connected over UART, using the pySerial library for this.
 
 ### To do
