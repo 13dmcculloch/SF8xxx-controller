@@ -9,6 +9,8 @@ Created on Sun May 19 11:59:47 2024
 
 import SF8xxx as sf8
 
+VERSION = '1.1'
+
 class Console:
     def __init__(self):
         self.exit_status = False
@@ -370,7 +372,7 @@ class Console:
             
     def __tec_on(self, alias):
         if self.devices[alias].set_tec_on():
-            print(alias + ':', "failed to set TEC on!")
+            print(alias + ':', "failed to set TEC on! Interlock?")
         
         
     def __is_tec_on(self, alias):
@@ -495,7 +497,7 @@ class Console:
     
     
     def __print_intro(self):
-        print("SF8xxx controller 1.0")
+        print("SF8xxx controller " + VERSION)
         
         
     def __print_help(self):
