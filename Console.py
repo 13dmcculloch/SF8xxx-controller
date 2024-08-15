@@ -465,7 +465,7 @@ class Console:
     
     def __list_devs(self):
         for k, v in self.devices.items():
-            print(k, "on", v.port)
+            print(k, '(' + str(v.serial_no) + ')', "on", v.port)
 
         
     def __token_len(self, length: int):
