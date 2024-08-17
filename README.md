@@ -10,9 +10,12 @@ Software for Maiman Electronics SF8xxx diode controllers.
 
 Commands:
 
-`dial [port] [device]` - Connect device at `[port]`, addressable by `[device]`.
+`dial [devpath] [device]` - Connect device at `devpath`, addressable by `device`, which is an aribtrary name describing the device at `devpath`.
 \
 `hangup [device]` - Disconnect this device.
+
+
+`load [filename]` - Load a JSON file with device names and devpaths.
 
 
 `qrd [device]` - Quick RunDown of device status.
