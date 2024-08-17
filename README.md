@@ -20,7 +20,7 @@ Commands:
 `qrrd [device]` - QuickeR RunDown of device status.
 
 
-`configure [device]` - Set device registers for easy lab use.*
+`configure [device]` - Set device registers to use interlock and ignore external NTC thermistor. Good to run this initially.
 
 
 `tec set [device] [on/off]` - Turn TEC on or off. (Interlock must be on.)

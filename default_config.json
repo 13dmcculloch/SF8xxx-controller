@@ -1,0 +1,13 @@
+{
+    "a": {
+        "devpath": "/dev/ttyUSB0",
+        "driver_current_max": "350",
+        "tec_temperature": "25"
+    },
+
+    "b": {
+        "devpath": "/dev/ttyUSB1",
+        "driver_current_max": "350",
+        "tec_temperature": "25"
+    }
+}

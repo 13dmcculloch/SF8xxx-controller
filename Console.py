@@ -7,6 +7,7 @@ Created on Sun May 19 11:59:47 2024
 @author: drm1g20
 """
 
+import json
 import SF8xxx as sf8
 
 VERSION = '1.1'
@@ -248,6 +249,12 @@ class Console:
                 return
             
             self.__mxma(self.tokens[1])
+
+        elif root == 'load':
+            if self.token_len(2):
+                return
+
+            self.__load_from_config(self.tokens[1])
             
         elif root == 'list':
             self.__list_devs()
@@ -275,6 +282,17 @@ class Console:
         print("Driver:", "OFF" if self.devices[alias].driver_off else "ON",
               "TEC:", "OFF" if self.devices[alias].tec_off else "ON")
         
+
+    def __load_from_config(self, filename):
+        f = open(filename, 'r')
+        d = json.load(f)
+        f.close()
+
+        for alias in d.keys():
+            __dial(d[alias]['devpath'], alias)
+            __driver_current_max(alias, int(d[alias]["driver_current_max"]))
+            __tec_temp(alias, int(d[alias]["tec_temperature"]))
+
         
     def __hang_up(self, alias):
         if alias not in self.devices.keys():
