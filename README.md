@@ -48,10 +48,7 @@ Commands:
 
 `exit` - Exit program.
 
-(`[device]` = "all" to perform the command for all devices (except for `dial` and driver current (`dri cur(max)`) routines).)
-Author: Douglas McCulloch, May 2024
-
-*"easy lab use" means: ignore external NTC thermistor, but interlock the driver output between analog pins 15 and 16 (any GND). This command will likely need to be run initially as the driver/TEC enable may be set to "external" on power-up.
+(`device` = "all" to perform the command for all devices (except for `dial` and driver current (`dri cur(max)`) routines, to prevent accidentally setting an incorrect maximum driver current for different devices).)
 
 ### Usage and installation
 If on Linux or whatever you need to add yourself to the `dialout` group in
@@ -66,3 +63,6 @@ execution on Linux or whatever but can still be run under python.
 `Console.py` - console object.
 
 `main.py` - run this for now
+
+
+Author: Douglas McCulloch, May 2024
