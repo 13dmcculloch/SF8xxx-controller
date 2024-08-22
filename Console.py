@@ -415,7 +415,7 @@ class Console:
             
     def __tec_on(self, alias):
         if self.devices[alias].set_tec_on():
-            print(alias + ':', "failed to set TEC on! Interlock? Or try
+            print(alias + ':', "failed to set TEC on! Interlock? Or try \
             `configure [device]` first")
         
         
