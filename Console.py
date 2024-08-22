@@ -415,7 +415,8 @@ class Console:
             
     def __tec_on(self, alias):
         if self.devices[alias].set_tec_on():
-            print(alias + ':', "failed to set TEC on! Interlock?")
+            print(alias + ':', "failed to set TEC on! Interlock? Or try
+            `configure [device]` first")
         
         
     def __is_tec_on(self, alias):
@@ -548,8 +549,10 @@ class Console:
         print("Commands:")
         print("dial [port] [device] - Connect device at [port], addressable by [device].")
         print("hangup [device] - Disconnect this device.")
+        print("load [config] - Load default devpaths, devices etc. from config json.")
         print("qrd [device] - Quick RunDown of device status.")
         print("configure [device] - Set device registers for easy lab use.")
+        print("int [device] [on/off] - Allow/deny interlock.")
         print("tec set [device] [on/off] - Turn TEC on or off.")
         print("tec temp [device] [temperature, C] - Set TEC temperature.")
         print("tec stat [device] - TEC status register contents.")
