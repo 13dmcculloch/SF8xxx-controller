@@ -178,6 +178,14 @@ class SF8xxx:
                 tec_selfheat
 
 
+    def allow_interlock(self):
+        self.__set_routine('DRIVER_STATE', 0x1000)
+
+
+    def deny_interlock(self):
+        self.__set_routine('DRIVER_STATE', 0x2000)
+
+
     def get_serial_no(self):
         return self.__get_response('SERIAL_NO').rtoi()
         

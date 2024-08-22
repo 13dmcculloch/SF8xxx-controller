@@ -107,6 +107,21 @@ class Console:
                 return
             
             self.__configure(self.tokens[1])
+
+        elif root == 'int':
+            if self.__token_len(3):
+                return
+
+            if self.tokens[1] == 'all':
+                for dev in self.devices.keys():
+                    self.__interlock(dev, self.tokens[2])
+                return
+
+            if not self.__check(self.tokens[1]):
+                return
+
+            self.__interlock(self.tokens[1], self.tokens[2])
+            
             
         elif root == 'tec':
             argc = len(self.tokens)
@@ -332,7 +347,17 @@ class Console:
         """
         self.__print_dri_current(alias)
         self.__print_tec_current_actual(alias)
-        
+
+
+    def __interlock(self, alias, state):
+        """
+        toggle deny interlock
+        """
+        if state == 'on':
+            interlock_state = self.devices[alias].allow_interlock()
+        else:
+            interlock_state = self.devices[alias].deny_interlock()
+            
         
     def __mxma(self, alias):
         """

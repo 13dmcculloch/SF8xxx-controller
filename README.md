@@ -24,7 +24,8 @@ Commands:
 
 
 `configure [device]` - Set device registers to use interlock and ignore external NTC thermistor. Good to run this initially.
-
+\
+`int [device] [on/off]` - Allow/deny interlock.
 
 `tec set [device] [on/off]` - Turn TEC on or off. (Interlock must be on.)
 \
