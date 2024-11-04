@@ -1,0 +1,9 @@
+{
+  "a": {
+    "devpath": "/dev/ttyUSB0"
+  },
+
+  "b": {
+    "devpath": "/dev/ttyUSB1"
+  }
+}
