@@ -263,7 +263,7 @@ class SF8xxx:
     def set_tec_temperature(self, temp_C):
         self.__set_routine('TEC_TEMPERATURE_VALUE', temp_C * 100)
 
-        self.temperature = self.get_tec_temperature()
+        self.temperature = temp_C
 
     
     def set_tec_int(self):
