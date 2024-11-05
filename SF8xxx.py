@@ -312,9 +312,10 @@ class SF8xxx:
             
             if temperature > threshold:
                 self.set_driver_off()
-                print(str(self.serial_no) +
-                      ": Temperature (" + temperature
-                      + ") exceeds set threshold!!! Driver off.")
+                print("Device", self.serial_no,
+                      ": Temperature (" + str(temperature)
+                      + ") exceeds set threshold!!! Driver off.", end='\n')
+                print("> ", end='')
                 
             time.sleep(poll_interval)
             

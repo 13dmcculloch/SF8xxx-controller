@@ -37,6 +37,9 @@ class Console:
             
     
     def __command(self, cmd: str):
+        if cmd == '':
+            return
+
         self.tokens = cmd.split()
         root = self.tokens[0]
         
@@ -227,12 +230,18 @@ class Console:
                 if alias == 'all':
                     for dev in self.devices.keys():
                         self.__driver_set(dev, value)
+                    return    
                         
                 self.__driver_set(alias, value)
                 
             elif sel == 'cur':  # set driver current: dri cur [alias] xxx
                 if not self.__int_check(value):
                     return
+                
+                if alias == 'all':
+                  for dev in self.devices.keys():
+                      self.__driver_current(dev,int(value))
+                  return
                 
                 self.__driver_current(alias, int(value))
                 

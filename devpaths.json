@@ -1,19 +1,19 @@
 {
   "a": {
     "devpath": "/dev/ttyUSB0",
-    "driver_current_max": 80,
+    "driver_current_max": 1200,
     "tec_temperature": 25
   },
 
   "b": {
     "devpath": "/dev/ttyUSB2",
-    "driver_current_max": 80,
+    "driver_current_max": 1200,
     "tec_temperature": 25
   },
 
   "c": {
     "devpath": "/dev/ttyUSB1",
-    "driver_current_max": 80,
+    "driver_current_max": 1200,
     "tec_temperature": 25
   }
 }
