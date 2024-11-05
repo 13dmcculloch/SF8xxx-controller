@@ -13,7 +13,10 @@ Created on Fri May 17 13:35:35 2024
 @author: drm1g20
 """
 
+import threading
 import serial
+import time
+import sys
 
 class SF8xxx:
     """
@@ -21,23 +24,40 @@ class SF8xxx:
     """
     def __init__(self, port):
         self.port = port
-        
+
         try:
             self.dev = serial.Serial(port, 115200, timeout=0.2)
         except serial.SerialException:
             self.connected = False
             return
         self.connected = True
-        
+
+        self.__lock = threading.Lock()
+        self.end_threads = False
+
+        # get details and initial status
         self.serial_no = self.get_serial_no()
         
         self.driver_off = not self.driver_state()[1]
         self.tec_off = not self.tec_state()[0]
 
+        self.temperature = self.get_tec_temperature()
+
+        # start temperature limit thread
+        # (had issues with TEC turning off spontaneously while driver is on)
+        temperature_threshold = 5
+        poll_interval = 2
+        self.temperature_thread = threading.Thread(target=self.poll_tec_temperature,
+                                              args=(temperature_threshold,
+                                                    poll_interval,))
+        self.temperature_thread.start()
+
     
     def __del__(self):
         if not self.connected:
             return
+        self.end_threads = True
+        self.temperature_thread.join()
         self.dev.close()
         
         
@@ -45,10 +65,11 @@ class SF8xxx:
         """
         Return Response object from getter function
         """
-        cmd = Getter(parameter)
-        self.dev.write(cmd.data_bytes())
-        
-        return Response(self.dev.read_until(expected='\r'))
+        with self.__lock:
+            cmd = Getter(parameter)
+            self.dev.write(cmd.data_bytes())
+                
+            return Response(self.dev.read_until(expected='\r'))
         
     
     def get_driver_state(self):
@@ -56,6 +77,7 @@ class SF8xxx:
         Return a 8-bit mask representing driver state
         """
         return self.__get_response('DRIVER_STATE').raw()
+    
         
     def driver_state(self):
         """
@@ -191,14 +213,15 @@ class SF8xxx:
         
     
     def __set_routine(self, parameter, value):
-        cmd = Setter(parameter, value)
-        self.dev.write(cmd.data_bytes())
-        
-        res = Response(self.dev.read_until(expected='\r'), 'set')
-        if res.state == 'error':
-            return 1
-        
-        return res
+        with self.__lock:
+            cmd = Setter(parameter, value)
+            self.dev.write(cmd.data_bytes())
+            
+            res = Response(self.dev.read_until(expected='\r'), 'set')
+            if res.state == 'error':
+                return 1
+            
+            return res
     
     
     def set_driver_state(self):
@@ -240,6 +263,8 @@ class SF8xxx:
     def set_tec_temperature(self, temp_C):
         self.__set_routine('TEC_TEMPERATURE_VALUE', temp_C * 100)
 
+        self.temperature = self.get_tec_temperature()
+
     
     def set_tec_int(self):
         # internal enables
@@ -270,6 +295,30 @@ class SF8xxx:
             return 0
         else:
             return str(self.serial_no) + "Failed to set TEC off"
+
+
+    def poll_tec_temperature(self, tolerance, poll_interval):
+        """
+        Will turn off driver if the TEC temperature rises 5 deg > setpoint
+        To be run as a thread
+        """
+        while True:
+            if self.end_threads:
+                break
+            
+            threshold = self.temperature + tolerance
+
+            temperature = self.get_tec_temperature()
+            
+            if temperature > threshold:
+                self.set_driver_off()
+                print(str(self.serial_no) +
+                      ": Temperature (" + temperature
+                      + ") exceeds set threshold!!! Driver off.")
+                
+            time.sleep(poll_interval)
+            
+        sys.exit(0)
 
     
 class Command:

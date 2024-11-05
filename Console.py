@@ -9,8 +9,9 @@ Created on Sun May 19 11:59:47 2024
 
 import json
 import SF8xxx as sf8
+import time
 
-VERSION = '1.1'
+VERSION = '1.2'
 
 class Console:
     def __init__(self):
@@ -32,6 +33,7 @@ class Console:
                   d.port)
             
             d.dev.close()
+            d.__del__()
             
     
     def __command(self, cmd: str):
@@ -266,7 +268,7 @@ class Console:
             self.__mxma(self.tokens[1])
 
         elif root == 'load':
-            if self.token_len(2):
+            if self.__token_len(2):
                 return
 
             self.__load_from_config(self.tokens[1])
@@ -290,6 +292,8 @@ class Console:
         
         if not self.devices[alias].connected:
             print("Failed to connect to", port)
+            self.devices[alias] = 0
+            self.__clean_devices()
             return
         
         print(self.devices[alias].serial_no, "connected on", 
@@ -304,9 +308,9 @@ class Console:
         f.close()
 
         for alias in d.keys():
-            __dial(d[alias]['devpath'], alias)
-            __driver_current_max(alias, int(d[alias]["driver_current_max"]))
-            __tec_temp(alias, int(d[alias]["tec_temperature"]))
+            self.__dial(d[alias]['devpath'], alias)
+            self.__driver_current_max(alias, int(d[alias]["driver_current_max"]))
+            self.__tec_temp(alias, int(d[alias]["tec_temperature"]))
 
         
     def __hang_up(self, alias):
@@ -317,7 +321,7 @@ class Console:
         print("Disconnecting", 
               self.devices[alias].serial_no, "from", self.devices[alias].port)
         
-        self.devices[alias].dev.close()
+        self.devices[alias].__del__()
         self.devices[alias] = 0
         
         
