@@ -594,6 +594,7 @@ class Console:
         print("dri stat [device] - Driver status register contents.")
         print("lock [device] - Lock status register contents.")
         print("max [device] - Print current maxima.")
+        print("pid get [device] - Print PID coefficients.")
         print("list - Print a list of connected devices with ports.")
         print("exit - Exit program.")
         print("[device] = \"all\" to perform the command for all devices (except for dial and driver current routines).")
