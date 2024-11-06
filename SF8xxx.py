@@ -210,8 +210,20 @@ class SF8xxx:
 
     def get_serial_no(self):
         return self.__get_response('SERIAL_NO').rtoi()
+
+
+    def get_pid_p(self):
+        return self.__get_response('PID_P').rtoi()
         
+
+    def get_pid_i(self):
+        return self.__get_response('PID_I').rtoi()
     
+
+    def get_pid_d(self):
+        return self.__get_response('PID_D').rtoi()
+        
+  
     def __set_routine(self, parameter, value):
         with self.__lock:
             cmd = Setter(parameter, value)
@@ -347,6 +359,10 @@ class Command:
             'TEC_VOLTAGE_MEASURED': '0A18',
             
             'LOCK_STATE': '0800',
+
+            'PID_P': '0A21',
+            'PID_I': '0A22',
+            'PID_D': '0A23',
             
             'SERIAL_NO': '0701'
             }

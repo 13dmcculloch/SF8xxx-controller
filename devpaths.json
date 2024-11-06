@@ -1,7 +1,7 @@
 {
   "a": {
     "devpath": "/dev/ttyUSB0",
-    "driver_current_max": 1200,
+    "driver_current_max": 700,
     "tec_temperature": 25
   },
 

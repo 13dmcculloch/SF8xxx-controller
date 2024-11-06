@@ -11,7 +11,7 @@ import json
 import SF8xxx as sf8
 import time
 
-VERSION = '1.2'
+VERSION = '1.3'
 
 class Console:
     def __init__(self):
@@ -281,6 +281,18 @@ class Console:
                 return
 
             self.__load_from_config(self.tokens[1])
+
+        elif root == 'pid':
+            if self.__token_len(3):
+                return
+
+            if self.tokens[1] == 'get':
+                if self.tokens[2] == 'all':
+                    for dev in self.devices.keys():
+                        self.__print_pid(dev)
+                    return
+
+                self.__print_pid(self.tokens[2])
             
         elif root == 'list':
             self.__list_devs()
@@ -518,6 +530,14 @@ class Console:
         print("NTC ext.:\t\t", "ON" if ntc else "OFF")
         print("TEC err.:\t\t", "ON" if tec_error else "OFF")
         print("TEC SH:\t\t", "ON" if tec_selfheat else "OFF")
+
+
+
+    def __print_pid(self,alias):
+        print(alias + ':')
+        print('P: ' + str(self.devices[alias].get_pid_p()), end=', ')
+        print('I: ' + str(self.devices[alias].get_pid_i()), end=', ')
+        print('D: ' + str(self.devices[alias].get_pid_d()))
         
     
     def __list_devs(self):
