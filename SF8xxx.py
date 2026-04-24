@@ -18,22 +18,40 @@ import serial
 import time
 import sys
 
+def serial_write(dev, payload):
+    written = 0
+    while written < length(payload):
+        try:
+            written += dev.write(payload)
+        except:
+            return 0  # not used to this
+    return written
+
+def serial_read(dev):
+    try:
+        res = self.dev.read_until(expected='\r')
+    except:
+        return ''
+    return res
+
 class SF8xxx:
     """
     Object handling I/O to and from SF8xxx.
     """
-    def __init__(self, port):
-        self.port = port
-
+    def __make_connection(self):
         try:
-            self.dev = serial.Serial(port, 115200, timeout=0.2)
+            self.dev = serial.Serial(self.port, 115200, timeout=0.2)
         except serial.SerialException:
             self.connected = False
             return
         self.connected = True
-
+        
+    def __init__(self, port):
+        self.port = port
         self.__lock = threading.Lock()
         self.end_threads = False
+        
+        self.__make_connection()
 
         # get details and initial status
         self.serial_no = self.get_serial_no()
@@ -58,19 +76,27 @@ class SF8xxx:
             return
         self.end_threads = True
         self.temperature_thread.join()
-        self.dev.close()
-        
-        
+        try:
+            self.dev.close()
+        except:
+            print("SF8xxx: Could not hang up ", self.serial_no)
+
+    
     def __get_response(self, parameter):
         """
         Return Response object from getter function
         """
         with self.__lock:
             cmd = Getter(parameter)
-            self.dev.write(cmd.data_bytes())
-                
-            return Response(self.dev.read_until(expected='\r'))
-        
+            if not serial_write(self.dev, cmd.data_bytes()):
+                print("SF8xxx: Write error ", self.serial_no)
+
+            res_data = serial_read(self.dev)
+            if res_data == '':
+                print("SF8xxx: Read error ", self.serial_no)
+
+            return Response(res_data)
+            
     
     def get_driver_state(self):
         """
@@ -227,9 +253,14 @@ class SF8xxx:
     def __set_routine(self, parameter, value):
         with self.__lock:
             cmd = Setter(parameter, value)
-            self.dev.write(cmd.data_bytes())
-            
-            res = Response(self.dev.read_until(expected='\r'), 'set')
+            if not serial_write(self.dev, cmd.data_bytes()):
+                print("SF8xxx: Write error ", self.serial_no)
+
+            res_data = serial_read(self.dev)
+            if res_data == '':
+                print("SF8xxx: Read error ", self.serial_no)
+                
+            res = Response(res_data, 'set')
             if res.state == 'error':
                 return 1
             
