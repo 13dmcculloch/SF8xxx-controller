@@ -15,14 +15,18 @@ import Status
 VERSION = '1.3'
 
 class Console:
-    def __init__(self):
+    def __init__(self, logfile="/tmp/sf8_status"):
         self.exit_status = False
         self.devices = {}
+
+        self.status = Status(devices)
         
         self.__print_intro()
         
         while not self.exit_status:
             self.exit_status = self.__command(input("> "))
+
+        self.status.end_threads = True
             
             
     def __del__(self):
