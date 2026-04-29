@@ -10,6 +10,7 @@ Created on Sun May 19 11:59:47 2024
 import json
 import SF8xxx as sf8
 import time
+import Status
 
 VERSION = '1.3'
 
