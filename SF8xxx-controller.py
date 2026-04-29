@@ -10,5 +10,9 @@ Created on Sun May 19 12:03:18 2024
 """
 
 import Console as co
+import sys
 
-co.Console()
+if len(sys.argv) > 1:
+  co.Console(logfile=sys.argv[1])
+else:
+  co.Console()
