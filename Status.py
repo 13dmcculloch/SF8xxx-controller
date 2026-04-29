@@ -9,6 +9,11 @@ class Status:
     self.interval = 1
 
 
+  def __del__(self):
+    self.end_threads = True
+    self.run_thread.join()
+
+  
   def __run(self):
     while not self.end_threads:
       f = open(self.filename, "w")
@@ -16,6 +21,8 @@ class Status:
       for dev in self.devices.values():
         f.write(__str_status_line(dev))
       time.sleep(self.interval)
+      
+    self.run_thread.join()
 
 
   def run(self):
