@@ -19,7 +19,7 @@ class Console:
         self.exit_status = False
         self.devices = {}
 
-        self.status = Status(devices)
+        self.status = Status(devices, fn=logfile)
         
         self.__print_intro()
         
