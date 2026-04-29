@@ -2,7 +2,9 @@
 Basic terminal-based software to control output current and temperature on an arbitrary number of Maiman SF8xxx laser diode/SOA controllers connected over UART, using the pySerial library for this.
 
 ### To do
-- Keep using it until there are bugs
+- More reliablity
+- Status screen
+- Fibre amplifier pump order
 
 ### Synopsis
 Software for Maiman Electronics SF8xxx diode controllers.
@@ -62,9 +64,11 @@ execution on Linux or whatever but can still be run under python.
 
 `Console.py` - console object.
 
-`main.py` - run this for now
-
 `devpaths.json` - example json file for loading all at once
+
+`sf8.sh` - run the program
+
+`sf8_status.sh` - attach to/create a screen session showing the status window
 
 ### History
 `1.2` - Added `load` function. Added safety measure to turn off driver if temperature is too high. Have noticed TEC turning off independly of driver sometimes. Bug fixes.
